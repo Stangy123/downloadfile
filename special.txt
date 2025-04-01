@@ -1,65 +1,61 @@
-let intervalId1, intervalId2; // Variables to store the interval IDs for stopping. 
-let lastShiftTime = 0; // Time of the last SHIFT key press 
-let doubleTapThreshold = 500; // Maximum time in milliseconds between two SHIFT presses to be considered a double-tap 
- 
-// Function to start the auto-clicking for both buttons 
-function startAutoClick() { 
-    if (!intervalId1 && !intervalId2) { // Ensure that we don't start multiple intervals 
-        // Start clicking the first button every 700ms 
-        intervalId1 = setInterval(function() { 
-            var button1 = document.querySelector('.el-button.el-button--primary.el-button--small.search-btn'); 
-            if (button1) { 
-                button1.click(); 
-            } 
-        }, 700); 
- 
-        // Start clicking the second button every 1ms 
-        intervalId2 = setInterval(function() { 
-            var button2 = Array.from(document.querySelectorAll('.private-button.text')).find(button => button.textContent.toLowerCase().includes('lock')); 
-            if (button2) { 
-                button2.click(); 
-            } 
-        }, 0); 
- 
-        console.log("Auto-clicking started."); 
-    } else { 
-        console.log("Auto-clicking is already running."); 
-    } 
-} 
- 
-// Function to stop the auto-clicking 
-function stopAutoClick() { 
-    if (intervalId1) { 
-        clearInterval(intervalId1); // Stop the first interval 
-        intervalId1 = null; 
-        console.log("First auto-clicking stopped."); 
-    } 
-    if (intervalId2) { 
-        clearInterval(intervalId2); // Stop the second interval 
-        intervalId2 = null; 
-        console.log("Second auto-clicking stopped."); 
-    } 
-} 
- 
-// Function to handle SHIFT key press events 
-function handleShiftKeyPress(event) { 
-    const currentTime = new Date().getTime(); 
- 
-    // Check if the SHIFT key was pressed 
-    if (event.key === "Shift") { 
-        if (currentTime - lastShiftTime < doubleTapThreshold) { 
-            // If the SHIFT key is pressed twice within the threshold, toggle auto-clicking 
-            if (intervalId1 || intervalId2) { 
-                stopAutoClick(); // If already running, stop the auto-clicking 
-            } else { 
-                startAutoClick(); // If not running, start the auto-clicking 
-            } 
-        } 
-        lastShiftTime = currentTime; 
-    } 
-} 
- 
-// Add event listener for keydown event 
-document.addEventListener("keydown", handleShiftKeyPress); 
- 
-console.log("Double-tap SHIFT key to start/stop auto-clicking.");
+let intervalId1, intervalId2; // Variables to store the interval IDs for stopping.
+let isActive = false; // Track the current state of auto-clicking
+
+// Function to start the auto-clicking for both buttons
+function startAutoClick() {
+    if (!intervalId1 && !intervalId2) { // Ensure that we don't start multiple intervals
+        // Start clicking the first button every 700ms
+        intervalId1 = setInterval(function () {
+            var button1 = document.querySelector('.el-button.el-button--primary.el-button--small.search-btn');
+            if (button1) {
+                button1.click();
+            }
+        }, 700);
+
+        // Start clicking the second button every 1ms
+        intervalId2 = setInterval(function () {
+            var button2 = Array.from(document.querySelectorAll('.private-button.text'))
+                .find(button => button.textContent.includes('Lock')); // Changed to match exact "Lock"
+            if (button2) {
+                button2.click();
+            }
+        }, 0);
+
+        console.log("Auto-clicking started.");
+    } else {
+        console.log("Auto-clicking is already running.");
+    }
+}
+
+// Function to stop the auto-clicking
+function stopAutoClick() {
+    if (intervalId1) {
+        clearInterval(intervalId1); // Stop the first interval
+        intervalId1 = null;
+        console.log("First auto-clicking stopped.");
+    }
+    if (intervalId2) {
+        clearInterval(intervalId2); // Stop the second interval
+        intervalId2 = null;
+        console.log("Second auto-clicking stopped.");
+    }
+}
+
+// Function to handle Ctrl + Shift key press events
+function handleCtrlShiftKeyPress(event) {
+    if (event.ctrlKey && event.shiftKey) {
+        event.preventDefault(); // Prevents default behavior (optional)
+        isActive = !isActive;
+
+        if (isActive) {
+            startAutoClick();
+        } else {
+            stopAutoClick();
+        }
+    }
+}
+
+// Add event listener for keydown event
+document.addEventListener("keydown", handleCtrlShiftKeyPress);
+
+console.log("Press Ctrl + Shift to start/stop auto-clicking.");
